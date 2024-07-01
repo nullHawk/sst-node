@@ -1,5 +1,7 @@
-const fs = requir("fs");
+const http = require('http');
 
-const data = fs.readFileSync("file.txt");
-
-console.log(data);
+const server = http.createServer((req, res) => {
+    res.setHeader("Content-Type", "text/html");
+    res.write("<html><head><title>Node js class</title></head><body><h1>Hello World!</body></html>"); 
+    res.end();
+});
