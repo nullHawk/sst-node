@@ -1,13 +1,17 @@
 const http = require('http');
+const fs = require('fs');
+
+const hello_file = fs.readFileSync('hello.html', 'utf8');
+const login_file = fs.readFileSync('log.html', 'utf8');
 
 const server = http.createServer((req, res) => {
     if (req.url === '/login' && req.method === 'GET') {
         res.setHeader("Content-Type", "text/html");
-        res.write("<html><head><title>Node js class</title></head><body><h1>Logged In</body></html>"); 
+        res.write(login_file); 
         res.end();
       } else {
         res.setHeader("Content-Type", "text/html");
-        res.write("<html><head><title>Node js class</title></head><body><h1>Hello World!</body></html>"); 
+        res.write(hello_file); 
         res.end();
       }
 });
