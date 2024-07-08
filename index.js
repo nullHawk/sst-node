@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const app = express();
-const productRoutes = require("./routes/productRoutes");
 
 dotenv.config();
 
@@ -19,7 +18,8 @@ mongoose
     console.log("Db connection Failed", err);
   });
 
-app.use("/api/products", productRoutes);
+app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 
 app.listen(8086, () => {
   console.log("Server sarted at port 8086");
