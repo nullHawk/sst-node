@@ -1,24 +1,94 @@
-const http = require('http');
-const fs = require('fs');
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const app = express();
 
-const hello_file = fs.readFileSync('hello.html', 'utf8');
-const login_file = fs.readFileSync('log.html', 'utf8');
+dotenv.config();
 
-const server = http.createServer((req, res) => {
-    if (req.url === '/login' && req.method === 'GET') {
-        res.setHeader("Content-Type", "text/html");
-        res.write(login_file); 
-        res.end();
-      } else {
-        res.setHeader("Content-Type", "text/html");
-        res.write(hello_file); 
-        res.end();
-      }
+app.use(express.json());
+
+mongoose
+  .connect(
+    process.env.MONGO_DB_URI,
+  )
+  .then(() => {
+    console.log("Db Connected");
+  })
+  .catch((err) => {
+    console.log("Db connection Failed", err);
+  });
+
+// ProductSchema
+
+const productSchema = new mongoose.Schema({
+  product_name: {
+    type: String,
+    required: true,
+  },
+  product_price: {
+    type: String,
+    required: true,
+  },
+  isInStock: {
+    type: Boolean,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
 });
 
-const port = 8000;
-const host = 'localhost';
+const ProductModel = mongoose.model("products", productSchema);
 
-server.listen(port, host, () => {
-    console.log(`Server is running on http://${host}:${port}`);
+// Create
+
+app.post("/api/products", async (req, res) => {
+   await ProductModel.create({
+    product_name: req.body.product_name,
+    product_price: req.body.product_price,
+    isInStock: req.body.isInStock,
+    category: req.body.category,
+  });
+
+  return res.status(201).json({ message: "Product Created" });
+});
+
+
+// get route
+
+app.get('/api/products' , async(req , res)=>{
+   const allProucts = await ProductModel.find({isInStock:true})
+
+   return res.json(allProucts)
+})
+
+// Get product by id
+
+app.get('/api/products/:id' , async(req , res)=>{
+ const product = await ProductModel.findById(req.params.id)
+
+ return res.json(product)
+})
+
+// Update product
+
+app.put('/api/products/:id' , async(req , res)=>{
+  const updatedProduct = await ProductModel.findByIdAndUpdate(req.params.id , req.body)
+  return res.json(updatedProduct)
+})
+
+
+/// Delete a Resource
+
+app.delete('/api/products/:id' , async(req , res)=>{
+  const deletedProduct = await ProductModel.findByIdAndDelete(req.params.id)
+
+  res.json(deletedProduct)
+})
+
+
+
+app.listen(8086, () => {
+  console.log("Server sarted at port 8086");
 });
